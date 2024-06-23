@@ -7,10 +7,15 @@ import time
 from dotenv import load_dotenv
 import urllib3
 from datetime import datetime
+import logging
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 load_dotenv()
+
+# Logging yapılandırması
+logging.basicConfig(filename='log.txt', level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 years = [2019, 2020, 2021, 2022]
@@ -34,7 +39,7 @@ for year in years:
     codes_file = f'{year}.txt'
     base_url = f'https://yokatlas.yok.gov.tr/{year}/content/lisans-dynamic/1000_1.php?y='
     now = datetime.now()
-    print(f"{year} yılına ait scraping başlatıldı. Saat: {now}")
+    logging.info(f"{year} yılına ait scraping başlatıldı. Saat: {now}")
     # Pro code'ları dosyadan okuma
     with open(codes_file, 'r') as file:
         pro_codes = file.readlines()
@@ -46,7 +51,7 @@ for year in years:
     for pro_code in pro_codes:
         pro_code = pro_code.strip()
         try:
-            response = requests.get(f"{base_url}{pro_code}", timeout=20, verify=False)
+            response = requests.get(f"{base_url}{pro_code}", timeout=20, verify=True)
             if response.status_code == 200:
                 soup = BeautifulSoup(response.content, 'html.parser')
                 # Tablo başlığını çekme
@@ -68,9 +73,9 @@ for year in years:
                             })
                 time.sleep(0.2)
             else:
-                print(f"Bozuk program kodu: {pro_code}")
+                logging.warning(f"Bozuk program kodu: {pro_code}")
         except requests.exceptions.RequestException as e:
-            print(f"Bağlanılamadı: {pro_code}, hata: {e}")
+            logging.error(f"Bağlanılamadı: {pro_code}, hata: {e}")
 
     # Veriyi pandas DataFrame'e dönüştürme
     if all_data:
@@ -108,6 +113,6 @@ for year in years:
         df_pivot.to_sql(table_name, con=engine, if_exists='append', index=False)
         end = datetime.now()
 
-        print(f"{year} Yılına Ait Veri başarıyla veritabanına kaydedildi. Saat: {end}")
+        logging.info(f"{year} Yılına Ait Veri başarıyla veritabanına kaydedildi. Saat: {end}")
     else:
-        print("Çekilen veri yok.")
+        logging.info("Çekilen veri yok.")
