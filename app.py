@@ -51,7 +51,7 @@ for year in years:
     for pro_code in pro_codes:
         pro_code = pro_code.strip()
         try:
-            response = requests.get(f"{base_url}{pro_code}", timeout=20, verify=True)
+            response = requests.get(f"{base_url}{pro_code}", timeout=20, verify=False)
             if response.status_code == 200:
                 soup = BeautifulSoup(response.content, 'html.parser')
                 # Tablo başlığını çekme
