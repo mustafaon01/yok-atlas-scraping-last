@@ -6,6 +6,8 @@ from sqlalchemy import create_engine, text
 import time
 from dotenv import load_dotenv
 import urllib3
+from datetime import datetime
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 load_dotenv()
@@ -31,6 +33,8 @@ db_url = f'postgresql://{username}:{pwd}@{hostname}:{port_id}/{database}'
 for year in years:
     codes_file = f'{year}.txt'
     base_url = f'https://yokatlas.yok.gov.tr/{year}/content/lisans-dynamic/1000_1.php?y='
+    now = datetime.now()
+    print(f"{year} yılına ait scraping başlatıldı. Saat: {now}")
     # Pro code'ları dosyadan okuma
     with open(codes_file, 'r') as file:
         pro_codes = file.readlines()
@@ -102,7 +106,8 @@ for year in years:
         df_pivot = df_pivot[cols]
 
         df_pivot.to_sql(table_name, con=engine, if_exists='append', index=False)
+        end = datetime.now()
 
-        print(f"{year} Yılına Ait Veri başarıyla veritabanına kaydedildi.")
+        print(f"{year} Yılına Ait Veri başarıyla veritabanına kaydedildi. Saat: {end}")
     else:
         print("Çekilen veri yok.")
