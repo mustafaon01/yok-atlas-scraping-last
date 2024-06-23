@@ -65,8 +65,15 @@ if all_data:
     df = pd.DataFrame(all_data)
 
     # Veriyi pivot edip geniş formata çevirme
-    df_pivot = df.pivot_table(index='pro_code', columns='Attribute', values='Value', aggfunc='first').reset_index()
-    df_pivot['bolum_adi'] = df.groupby('pro_code')['bolum_adi'].transform('first')
+    df_pivot = df.pivot_table(index=['pro_code', 'bolum_adi'], columns='Attribute', values='Value', aggfunc='first').reset_index()
+
+    # id sütunu ekleme
+    df_pivot['id'] = range(1, len(df_pivot) + 1)
+
+    # Sütun sıralamasını ayarlama
+    cols = df_pivot.columns.tolist()
+    cols = ['id'] + [col for col in cols if col != 'id']
+    df_pivot = df_pivot[cols]
 
     # DataFrame'i veritabanına kaydetme
     engine = create_engine(db_url)
