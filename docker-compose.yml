@@ -6,6 +6,4 @@ services:
     container_name: scraper
     env_file:
       - .env
-    volumes:
-      - .:/app
     command: ["python", "app.py"]
